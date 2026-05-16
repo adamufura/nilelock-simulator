@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { ArrowLeft, Battery, BatteryLow, Users } from "lucide-react";
 import { connectPublicSocket, disconnectPublicSocket, getApiBase } from "../lib/socket.js";
+import { SimulatorPinPad } from "./SimulatorPinPad.js";
 import { SmartDoorSimulation } from "./SmartDoorSimulation.js";
 
 type PublicLockDetail = {
@@ -10,6 +11,7 @@ type PublicLockDetail = {
   state: string;
   batteryLevel: number;
   updatedAt?: string;
+  passcodeRequired?: boolean;
   owners: { id: string; fullName: string; email: string }[];
 };
 
@@ -125,6 +127,24 @@ export function LiveLockScreen({ lockSlug, onBack }: Props) {
   const bat = detail?.batteryLevel ?? 0;
   const batLow = bat <= 20;
   const owners = detail?.owners ?? [];
+  const needsPasscode = detail?.passcodeRequired !== false;
+  const showUnlockUi = locked;
+
+  const unlockWithPasscode = async (passcode: string) => {
+    const res = await fetch(`${getApiBase()}/api/public/locks/${pathSeg}/unlock`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ passcode }),
+    });
+    const data = (await res.json().catch(() => ({}))) as { error?: string; state?: string };
+    if (!res.ok) {
+      throw new Error(data.error || "Invalid passcode");
+    }
+    if (data.state === "unlocked") {
+      setLocked(false);
+      setLastUpdated(new Date().toISOString());
+    }
+  };
 
   const statusBlock = (
     <div className="w-full max-w-md shrink-0 px-4 text-center">
@@ -166,7 +186,7 @@ export function LiveLockScreen({ lockSlug, onBack }: Props) {
           ))}
         </ul>
         <p className="mt-4 shrink-0 border-t border-white/[0.06] pt-3 text-[10px] leading-relaxed text-white/38">
-          Lock or unlock from the NileLock app while signed in as one of these accounts.
+          Residents manage passcodes in the NileLock app. Visitors unlock here with a 4-digit PIN.
         </p>
       </div>
     </aside>
@@ -196,7 +216,7 @@ export function LiveLockScreen({ lockSlug, onBack }: Props) {
           </div>
         ))}
       </div>
-      <p className="mt-2 text-center text-[10px] text-white/35">Use NileLock app as a listed resident.</p>
+      <p className="mt-2 text-center text-[10px] text-white/35">Residents: NileLock app · Visitors: PIN below</p>
     </div>
   );
 
@@ -242,6 +262,22 @@ export function LiveLockScreen({ lockSlug, onBack }: Props) {
             <div className="flex min-h-0 w-full flex-1 flex-col items-center justify-center gap-3 px-4 pb-2 pt-3 sm:gap-4 sm:pt-4 lg:py-6">
               <SmartDoorSimulation locked={locked} live={connected} />
               {statusBlock}
+              {showUnlockUi && needsPasscode ? (
+                <SimulatorPinPad disabled={!connected} onUnlock={unlockWithPasscode} />
+              ) : showUnlockUi && detail && !needsPasscode ? (
+                <button
+                  type="button"
+                  disabled={!connected}
+                  onClick={() => void unlockWithPasscode("")}
+                  className="rounded-xl bg-gradient-to-r from-sky-600 to-indigo-600 px-8 py-3 text-sm font-bold uppercase tracking-wider text-white shadow-lg disabled:opacity-45"
+                >
+                  Unlock door
+                </button>
+              ) : !locked ? (
+                <p className="max-w-xs text-center text-sm text-emerald-300/80">
+                  Door is open. It will lock again from the NileLock app.
+                </p>
+              ) : null}
             </div>
             {residentsMobileRail}
           </div>

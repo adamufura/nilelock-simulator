@@ -109,8 +109,8 @@ export function LockListScreen({ onOpenDoor }: Props) {
                 Campus smart locks
               </h1>
               <p className="text-sm leading-relaxed text-slate-400 sm:text-base">
-                Browse doors in a live grid. Tap any card for real-time status. Locking and unlocking stays in the{" "}
-                <span className="text-sky-300/90">NileLock</span> mobile app — assigned residents only.
+                Browse doors in a live grid. Tap a door to view live status and unlock with a visitor{" "}
+                <span className="text-sky-300/90">PIN</span> from the NileLock app.
               </p>
             </div>
           </div>
@@ -143,7 +143,7 @@ export function LockListScreen({ onOpenDoor }: Props) {
                       <button
                         type="button"
                         onClick={() => onOpenDoor(l.slug)}
-                        className="group relative flex h-full w-full flex-col overflow-hidden rounded-3xl border border-white/[0.08] bg-gradient-to-b from-white/[0.07] to-white/[0.02] p-px text-left shadow-lg shadow-black/20 transition-all duration-300 hover:-translate-y-1 hover:border-sky-500/35 hover:from-white/[0.12] hover:shadow-xl hover:shadow-sky-500/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500/60"
+                        className="group relative flex h-[30vh] max-h-[220px] min-h-[168px] w-full flex-col overflow-hidden rounded-2xl border border-white/[0.08] bg-gradient-to-b from-white/[0.07] to-white/[0.02] p-px text-left shadow-lg shadow-black/20 transition-all duration-300 hover:-translate-y-1 hover:border-sky-500/35 hover:from-white/[0.12] hover:shadow-xl hover:shadow-sky-500/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500/60 sm:max-h-[240px]"
                       >
                         <span
                           className={`pointer-events-none absolute -right-12 -top-12 h-40 w-40 rounded-full opacity-30 blur-3xl transition-opacity duration-500 group-hover:opacity-50 ${
@@ -156,23 +156,23 @@ export function LockListScreen({ onOpenDoor }: Props) {
                           }`}
                         />
 
-                        <div className="relative flex flex-1 flex-col rounded-[1.35rem] bg-[#0c1222]/85 p-5 sm:p-6 backdrop-blur-md">
-                          <div className="flex items-start justify-between gap-3">
+                        <div className="relative flex h-full flex-col rounded-[1.2rem] bg-[#0c1222]/85 p-4 backdrop-blur-md">
+                          <div className="flex items-start justify-between gap-2">
                             <div
-                              className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl ring-1 transition-transform duration-300 group-hover:scale-105 ${
+                              className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ring-1 transition-transform duration-300 group-hover:scale-105 ${
                                 locked
                                   ? "bg-red-500/15 text-red-300 ring-red-500/25"
                                   : "bg-emerald-500/15 text-emerald-300 ring-emerald-500/25"
                               }`}
                             >
                               {locked ? (
-                                <Lock className="h-7 w-7" strokeWidth={2} />
+                                <Lock className="h-5 w-5" strokeWidth={2} />
                               ) : (
-                                <Unlock className="h-7 w-7" strokeWidth={2} />
+                                <Unlock className="h-5 w-5" strokeWidth={2} />
                               )}
                             </div>
                             <span
-                              className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest ring-1 ${
+                              className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest ring-1 ${
                                 locked
                                   ? "bg-red-500/15 text-red-200 ring-red-500/25"
                                   : "bg-emerald-500/15 text-emerald-200 ring-emerald-500/25"
@@ -185,18 +185,18 @@ export function LockListScreen({ onOpenDoor }: Props) {
                             </span>
                           </div>
 
-                          <h2 className="mt-5 text-lg font-bold leading-snug text-white sm:text-xl">{l.name}</h2>
+                          <h2 className="mt-3 truncate text-base font-bold leading-snug text-white">{l.name}</h2>
                           {l.location ? (
-                            <p className="mt-2 flex items-start gap-2 text-sm text-slate-400">
-                              <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-sky-500/70" strokeWidth={2} />
+                            <p className="mt-1.5 flex items-start gap-1.5 text-xs text-slate-400 line-clamp-2">
+                              <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 text-sky-500/70" strokeWidth={2} />
                               <span>{l.location}</span>
                             </p>
                           ) : null}
-                          <p className="mt-3 rounded-lg border border-white/[0.06] bg-black/20 px-2.5 py-1.5 font-mono text-[11px] text-sky-400/95">
+                          <p className="mt-2 truncate rounded-md border border-white/[0.06] bg-black/20 px-2 py-1 font-mono text-[10px] text-sky-400/95">
                             {l.slug}
                           </p>
 
-                          <div className="mt-auto flex items-end justify-between gap-3 border-t border-white/[0.06] pt-5">
+                          <div className="mt-auto flex items-end justify-between gap-3 border-t border-white/[0.06] pt-3">
                             <BatteryMeter level={l.batteryLevel} />
                             <span className="flex shrink-0 items-center gap-1 text-[11px] font-semibold uppercase tracking-wide text-slate-500 transition group-hover:text-sky-400">
                               Live
