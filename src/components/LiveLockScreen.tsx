@@ -128,7 +128,7 @@ export function LiveLockScreen({ lockSlug, onBack }: Props) {
   const bat = detail?.batteryLevel ?? 0;
   const batLow = bat <= 20;
   const owners = detail?.owners ?? [];
-  const needsPasscode = detail?.passcodeRequired !== false;
+  const requirePin = detail?.passcodeRequired !== false;
 
   const unlockWithPasscode = async (passcode: string) => {
     const res = await fetch(`${getApiBase()}/api/public/locks/${pathSeg}/unlock`, {
@@ -327,7 +327,7 @@ export function LiveLockScreen({ lockSlug, onBack }: Props) {
       <SimulatorUnlockModal
         open={unlockModalOpen}
         lockName={detail?.name}
-        skipPin={!needsPasscode}
+        requirePin={requirePin}
         onClose={() => setUnlockModalOpen(false)}
         onUnlock={unlockWithPasscode}
       />
