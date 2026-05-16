@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
-import { ArrowLeft, Battery, BatteryLow, Users } from "lucide-react";
+import { ArrowLeft, Battery, BatteryLow, LockOpen, Users } from "lucide-react";
 import { connectPublicSocket, disconnectPublicSocket, getApiBase } from "../lib/socket.js";
-import { SimulatorPinPad } from "./SimulatorPinPad.js";
+import { SimulatorUnlockModal } from "./SimulatorUnlockModal.js";
 import { SmartDoorSimulation } from "./SmartDoorSimulation.js";
 
 type PublicLockDetail = {
@@ -35,6 +35,7 @@ export function LiveLockScreen({ lockSlug, onBack }: Props) {
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
   const [connectError, setConnectError] = useState("");
   const [loadError, setLoadError] = useState("");
+  const [unlockModalOpen, setUnlockModalOpen] = useState(false);
 
   const pathSeg = encodeURIComponent(lockSlug);
 
@@ -128,7 +129,6 @@ export function LiveLockScreen({ lockSlug, onBack }: Props) {
   const batLow = bat <= 20;
   const owners = detail?.owners ?? [];
   const needsPasscode = detail?.passcodeRequired !== false;
-  const showUnlockUi = locked;
 
   const unlockWithPasscode = async (passcode: string) => {
     const res = await fetch(`${getApiBase()}/api/public/locks/${pathSeg}/unlock`, {
@@ -216,7 +216,7 @@ export function LiveLockScreen({ lockSlug, onBack }: Props) {
           </div>
         ))}
       </div>
-      <p className="mt-2 text-center text-[10px] text-white/35">Residents: NileLock app · Visitors: PIN below</p>
+      <p className="mt-2 text-center text-[10px] text-white/35">Residents: NileLock app · Visitors: tap Unlock</p>
     </div>
   );
 
@@ -262,22 +262,31 @@ export function LiveLockScreen({ lockSlug, onBack }: Props) {
             <div className="flex min-h-0 w-full flex-1 flex-col items-center justify-center gap-3 px-4 pb-2 pt-3 sm:gap-4 sm:pt-4 lg:py-6">
               <SmartDoorSimulation locked={locked} live={connected} />
               {statusBlock}
-              {showUnlockUi && needsPasscode ? (
-                <SimulatorPinPad disabled={!connected} onUnlock={unlockWithPasscode} />
-              ) : showUnlockUi && detail && !needsPasscode ? (
-                <button
-                  type="button"
-                  disabled={!connected}
-                  onClick={() => void unlockWithPasscode("")}
-                  className="rounded-xl bg-gradient-to-r from-sky-600 to-indigo-600 px-8 py-3 text-sm font-bold uppercase tracking-wider text-white shadow-lg disabled:opacity-45"
-                >
-                  Unlock door
-                </button>
-              ) : !locked ? (
+              {locked ? (
+                <div className="flex w-full max-w-md flex-col items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setUnlockModalOpen(true)}
+                    className="inline-flex w-full max-w-xs items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-sky-600 to-indigo-600 px-8 py-4 text-base font-bold uppercase tracking-wider text-white shadow-lg shadow-sky-900/50 transition hover:from-sky-500 hover:to-indigo-500 active:scale-[0.98]"
+                  >
+                    <LockOpen className="h-5 w-5" strokeWidth={2.25} />
+                    Unlock door
+                  </button>
+                  {!connected ? (
+                    <p className="text-center text-[11px] text-amber-300/90">
+                      Connecting to live server… you can still enter your PIN.
+                    </p>
+                  ) : (
+                    <p className="text-center text-[11px] text-white/40">
+                      Tap to enter visitor PIN
+                    </p>
+                  )}
+                </div>
+              ) : (
                 <p className="max-w-xs text-center text-sm text-emerald-300/80">
                   Door is open. It will lock again from the NileLock app.
                 </p>
-              ) : null}
+              )}
             </div>
             {residentsMobileRail}
           </div>
@@ -314,6 +323,14 @@ export function LiveLockScreen({ lockSlug, onBack }: Props) {
           ) : null}
         </footer>
       </div>
+
+      <SimulatorUnlockModal
+        open={unlockModalOpen}
+        lockName={detail?.name}
+        skipPin={!needsPasscode}
+        onClose={() => setUnlockModalOpen(false)}
+        onUnlock={unlockWithPasscode}
+      />
     </div>
   );
 }
