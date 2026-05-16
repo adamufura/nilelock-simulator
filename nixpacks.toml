@@ -1,9 +1,15 @@
-# Node 22 + build dist; Caddyfile in repo serves /app/dist (fixes blank page)
+# Node 22 + Vite build; serve dist/ (not dev index.html with /src/main.tsx)
 [variables]
 NIXPACKS_NODE_VERSION = "22"
+NIXPACKS_SPA_OUT_DIR = "dist"
+NIXPACKS_SPA_CADDY = "false"
+
+[phases.install]
+cmds = ["npm ci"]
 
 [phases.build]
-cmds = ["npm run build"]
+cmds = ["npm run build", "test -f dist/index.html"]
+dependsOn = ["install"]
 
-[staticAssets]
-"dist" = "/"
+[start]
+cmd = "npm run start"

@@ -23,5 +23,7 @@ Set `VITE_API_URL` at **build time** (Docker `ARG`, Easypanel env, or `.env`).
 
 ## Deploy (Easypanel)
 
-- **Nixpacks** (default): uses `nixpacks.toml`, Node 22 (`.nvmrc`), `Caddyfile` serves `dist/`.
+- **Nixpacks** (default): `npm run build` then `serve dist` on `PORT` (see `nixpacks.toml`).
 - **Dockerfile**: multi-stage build + `serve` on `PORT` (default 3000).
+
+If you still see a blank page loading `/src/main.tsx`, the build did not run — check deploy logs for `npm run build` errors, or switch the service to **Dockerfile** build.
