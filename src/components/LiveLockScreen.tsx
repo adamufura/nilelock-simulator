@@ -186,7 +186,7 @@ export function LiveLockScreen({ lockSlug, onBack }: Props) {
           ))}
         </ul>
         <p className="mt-4 shrink-0 border-t border-white/[0.06] pt-3 text-[10px] leading-relaxed text-white/38">
-          Residents manage passcodes in the NileLock app. Visitors unlock here with a 4-digit PIN.
+          Residents set time-limited passcodes in the NileLock app. Visitors unlock here with a 4-digit PIN before it expires.
         </p>
       </div>
     </aside>
